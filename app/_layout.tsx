@@ -1,24 +1,41 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+/* eslint-disable import/no-unresolved */
+import { GlobalBottomSheetProvider } from '@/components/GlobalBottomSheetProvider';
+import { store } from '@/store';
+import { theme } from '@/theme';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import * as SplashScreen from 'expo-splash-screen';
+import React, { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Provider } from 'react-redux';
+import { ThemeProvider } from 'styled-components/native';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+SplashScreen.preventAutoHideAsync();
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+function RootLayoutNav() {
+  return (
+    <Stack screenOptions={{ headerBackTitle: 'Back' }}>
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="product/[id]" options={{ headerShown: true, title: 'Product Details' }} />
+      <Stack.Screen name="order-confirmation" options={{ headerShown: true, title: 'Order Confirmation' }} />
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  useEffect(() => {
+    SplashScreen.hideAsync();
+  }, []);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <GlobalBottomSheetProvider>
+          <RootLayoutNav />
+          </GlobalBottomSheetProvider>
+        </GestureHandlerRootView>
+      </ThemeProvider>
+    </Provider>
   );
 }
